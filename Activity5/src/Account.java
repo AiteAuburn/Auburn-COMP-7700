@@ -66,10 +66,34 @@ public class Account {
     }
 
     /**
+     * Calculate the interest in this account.
+     * Default non-interest accounts, always return 0.
+     * @return the interest
+     */
+    public double computeInterest(){
+        return 0.0;
+    }
+
+    /**
+     * Calculate the monthly maintenance fee plus overdraft fee.
+     * Checking accounts have no monthly fee , thus always return the total of overdraft fee.
+     * @return the total of overdraft fee
+     */
+    public double computeFees(){
+        return mTotalFee;
+    }
+
+
+    /**
      * Give a brief description of the account
      * @return the account summary
      */
-    public String toString(){
-        return "Name:" + nOwner + "\tAccount Number:" + mAccountNumber + "\tBalance:" + nBalance;
+    public String toString() {
+        return "Name: " + nOwner
+                + "\n\tAccount Number: " + mAccountNumber
+                + "\n\tBalance: " + nBalance
+                + "\n\tInterest: " + computeInterest()
+                + "\n\tFee: " + computeFees()
+                + "\n";
     }
 }

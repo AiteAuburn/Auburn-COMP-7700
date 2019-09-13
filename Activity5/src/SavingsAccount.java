@@ -17,12 +17,19 @@ public class SavingsAccount extends Account{
 
     /**
      * Deposit the amount of money, also records the monthly deposit.
+     * Savings accounts have a fixed monthly fee (FIXED_MONTHLY_FEE).
+     * The fee is waived if the customer deposited over M(LEASE_MONTHLY_DEPOSIT) this month.
      * @param amount the amount of money to be deposited
      * @return 0 if success
      */
     public int deposit(double amount){
         super.deposit(amount);
         monthlyDeposit += amount;
+        if (monthlyDeposit >= LEAST_MONTHLY_DEPOSIT)
+            mTotalFee = 0.0;
+        else
+            mTotalFee = FIXED_MONTHLY_FEE;
+
         return 0;
     }
 
@@ -60,18 +67,6 @@ public class SavingsAccount extends Account{
         return nBalance * INTEREST_RATE;
     }
 
-    /**
-     * Calculate the monthly maintenance fee.
-     * Savings accounts have a fixed monthly fee (FIXED_MONTHLY_FEE).
-     * The fee is waived if the customer deposited over M(LEASE_MONTHLY_DEPOSIT) this month.
-     * @return the maintenance fee
-     */
-    public double computeFees(){
-        if (monthlyDeposit >= LEAST_MONTHLY_DEPOSIT)
-            return mTotalFee = 0.0;
-        else
-            return mTotalFee = FIXED_MONTHLY_FEE;
-    }
 
     /**
      * Give a brief description of a savings account

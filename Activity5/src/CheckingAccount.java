@@ -24,21 +24,4 @@ public class CheckingAccount extends Account{
         return 0;
     }
 
-    /**
-     * Calculate the interest in this account.
-     * Non-interest checking accounts , thus always return 0.
-     * @return the interest
-     */
-    public double computeInterest(){
-        return 0.0;
-    }
-
-    /**
-     * Calculate the monthly maintenance fee plus overdraft fee.
-     * Checking accounts have no monthly fee , thus always return the total of overdraft fee.
-     * @return the total of overdraft fee
-     */
-    public double computeFees(){
-        return mTotalFee;
-    }
 }
