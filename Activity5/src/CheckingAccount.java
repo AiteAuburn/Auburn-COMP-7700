@@ -15,13 +15,13 @@ public class CheckingAccount extends Account{
      * Check if the available balance goes below zero.
      * If so, charge an overdraft fee.
      * @param amount the amount of money to be withdrawn
-     * @return true if success
+     * @return 0 if success
      */
-    public boolean withdraw(double amount){
+    public int withdraw(double amount){
         super.withdraw(amount);
         if( nBalance < 0 )
-            nBalance -= OVERDRAFT_FEE;
-        return true;
+            mTotalFee += OVERDRAFT_FEE;
+        return 0;
     }
 
     /**
@@ -34,11 +34,11 @@ public class CheckingAccount extends Account{
     }
 
     /**
-     * Calculate the monthly maintenance fee.
-     * Checking accounts have no monthly fee , thus always return 0.
-     * @return the maintenance fee
+     * Calculate the monthly maintenance fee plus overdraft fee.
+     * Checking accounts have no monthly fee , thus always return the total of overdraft fee.
+     * @return the total of overdraft fee
      */
     public double computeFees(){
-        return 0.0;
+        return mTotalFee;
     }
 }

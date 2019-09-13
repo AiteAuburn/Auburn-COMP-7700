@@ -1,3 +1,6 @@
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Activity 5 - Checking Account
  * @author Ai-Te Kuo
@@ -8,6 +11,14 @@ public class Account {
     protected int mAccountNumber;
     protected double nBalance;
     protected String nOwner;
+    protected double mTotalFee;
+    protected static final Map<Integer, String> ERROR_MSG = new HashMap<Integer, String>();
+    static {
+        ERROR_MSG.put(1, "Your bank account doesn't have enough money.");
+        ERROR_MSG.put(2, "You have reached the maximum amount of withdrawals per month.");
+        ERROR_MSG.put(3, "You cannot deposit a negative number.");
+    }
+
     public Account(int no, double bal, String owner){
         mAccountNumber = no;
         nBalance = bal;
@@ -18,25 +29,40 @@ public class Account {
     public String StringOwner(){ return nOwner;}
 
     /**
+     * Given a error code, return a error message.
+     * @param returnCode int , a return code
+     * @return the error message corresponding to the error code
+     */
+    public static String getErrMsg(int returnCode) {
+        if (ERROR_MSG.containsKey(returnCode))
+            return ERROR_MSG.get(returnCode);
+        else
+            return "Unexpected";
+    }
+
+    /**
      * Deposit the amount of money.
      * @param amount the amount of money to be deposited
-     * @return true if success
+     * @return 0 if success
      */
-    public boolean deposit(double amount){
+    public int deposit(double amount){
+        int returnCode = 0;
         if( amount <= 0)
-            return false;
+            returnCode = 3;
         nBalance += amount;
-        return true;
+        if ( returnCode != 0)
+            System.out.println(getErrMsg(returnCode));
+        return returnCode;
     }
 
     /**
      * Withdraw the amount of money.
      * @param amount the amount of money to be withdrawn
-     * @return true if success
+     * @return 0 if success
      */
-    public boolean withdraw(double amount){
+    public int withdraw(double amount){
         nBalance -= amount;
-        return true;
+        return 0;
     }
 
     /**

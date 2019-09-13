@@ -18,12 +18,12 @@ public class SavingsAccount extends Account{
     /**
      * Deposit the amount of money, also records the monthly deposit.
      * @param amount the amount of money to be deposited
-     * @return true if success
+     * @return 0 if success
      */
-    public boolean deposit(double amount){
+    public int deposit(double amount){
         super.deposit(amount);
         monthlyDeposit += amount;
-        return true;
+        return 0;
     }
 
     /**
@@ -32,18 +32,23 @@ public class SavingsAccount extends Account{
      * If so, reject the withdrawal.
      * If success, increment the monthlyWithdrawalTimes by 1.
      * @param amount the amount of money to be withdrawn
-     * @return true if success
+     * @return 0 if success else error code
      */
-    public boolean withdraw(double amount){
+    public int withdraw(double amount){
+        int returnCode = 0;
         if( nBalance < amount )
-            return false;
+            returnCode = 1;
         else if ( monthlyWithdrawalTimes >= MAX_MONTHLY_WITHDRAW_TIMES)
-            return false;
+            returnCode = 2;
         else {
             super.withdraw(amount);
             monthlyWithdrawalTimes += 1;
+            returnCode = 0;
         }
-        return true;
+
+        if ( returnCode != 0)
+            System.out.println(getErrMsg(returnCode));
+        return returnCode;
     }
 
     /**
@@ -63,9 +68,9 @@ public class SavingsAccount extends Account{
      */
     public double computeFees(){
         if (monthlyDeposit >= LEAST_MONTHLY_DEPOSIT)
-            return 0.0;
+            return mTotalFee = 0.0;
         else
-            return FIXED_MONTHLY_FEE;
+            return mTotalFee = FIXED_MONTHLY_FEE;
     }
 
     /**
