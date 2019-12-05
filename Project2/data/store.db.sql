@@ -1,0 +1,63 @@
+BEGIN TRANSACTION;
+CREATE TABLE IF NOT EXISTS "Products" (
+	"productID"	INTEGER NOT NULL,
+	"productName"	TEXT NOT NULL,
+	"unitPrice"	REAL NOT NULL,
+	"stockQuantity"	INTEGER NOT NULL,
+	PRIMARY KEY("productID")
+);
+CREATE TABLE IF NOT EXISTS "Users" (
+	"userID"	INTEGER NOT NULL,
+	"password"	TEXT NOT NULL DEFAULT 0000,
+	"userType"	INTEGER NOT NULL,
+	"name"	TEXT DEFAULT 'Guest',
+	"phone"	TEXT DEFAULT '(000)000-0000',
+	"address"	TEXT DEFAULT 'Not Available',
+	PRIMARY KEY("userID")
+);
+CREATE TABLE IF NOT EXISTS "Purchases" (
+	"purchaseID"	INTEGER NOT NULL,
+	"userID"	INTEGER NOT NULL,
+	"productID"	INTEGER NOT NULL,
+	"price"	NUMERIC NOT NULL,
+	"quantity"	REAL NOT NULL,
+	"cost"	REAL NOT NULL,
+	"tax"	REAL NOT NULL,
+	"totalCost"	REAL NOT NULL,
+	"date"	INTEGER,
+	FOREIGN KEY("productID") REFERENCES "Products"("productID"),
+	PRIMARY KEY("purchaseID"),
+	FOREIGN KEY("userID") REFERENCES "Users"("userID")
+);
+INSERT INTO "Products" VALUES (1,'Clay',99.0,1234);
+INSERT INTO "Products" VALUES (2,'Heated Guns',4.0,4213);
+INSERT INTO "Products" VALUES (3,'65 inch TV',749.99,412);
+INSERT INTO "Products" VALUES (4,'PS4',399.99,231);
+INSERT INTO "Products" VALUES (5,'XBOX ONE S',299.99,7533);
+INSERT INTO "Products" VALUES (6,'Amazon Kindle',199.99,241);
+INSERT INTO "Products" VALUES (7,'Baby Stroller',299.99,51);
+INSERT INTO "Products" VALUES (8,'Baby Diaper',2.99,728);
+INSERT INTO "Users" VALUES (1,'customer',1,'customer','das11','r');
+INSERT INTO "Users" VALUES (2,'cashier',2,'cashier','(284)968-3821','Flat');
+INSERT INTO "Users" VALUES (3,'manager',3,'manager','(382)289-1928','Mansion');
+INSERT INTO "Users" VALUES (4,'admin',4,'admin','(042)213-4126','Castle');
+INSERT INTO "Users" VALUES (5,'5',1,'Miller','(158)239-1295','Not Available');
+INSERT INTO "Users" VALUES (6,'6',1,'Tayolr','(334)512-3126','Auburn');
+INSERT INTO "Users" VALUES (7,'7',1,'Diaz','(772)334-6041','Not Available');
+INSERT INTO "Users" VALUES (8,'8',1,'Brown','(341)412-5816','Not Available');
+INSERT INTO "Users" VALUES (9,'9',1,'Oliver','(751)285-1682','Not Available');
+INSERT INTO "Users" VALUES (10,'10',1,'Jacob','(681)186-2852','Not Available');
+INSERT INTO "Users" VALUES (20,'0',1,'Aite','(000)000-1234','Not Avialble');
+INSERT INTO "Purchases" VALUES (2,4,1,19.99,3.0,59.97,5.3973,65.3673,1573948681);
+INSERT INTO "Purchases" VALUES (3,6,2,29.99,4.0,119.96,10.7964,130.7564,1568295192);
+INSERT INTO "Purchases" VALUES (4,2,2,29.99,3.0,89.97,8.0973,98.0673,1575391283);
+INSERT INTO "Purchases" VALUES (5,6,3,749.99,1.0,749.99,67.4991,817.4891,1569200339);
+INSERT INTO "Purchases" VALUES (6,3,5,299.99,2.0,599.98,53.9982,653.9782,1575213941);
+INSERT INTO "Purchases" VALUES (7,4,7,299.99,1.0,299.99,26.9991,326.9891,1574912834);
+INSERT INTO "Purchases" VALUES (8,5,8,2.99,10.0,29.9,2.691,32.591,1571294124);
+INSERT INTO "Purchases" VALUES (9,7,3,749.99,1.0,749.99,67.4991,817.4891,1563127102);
+INSERT INTO "Purchases" VALUES (10,9,6,199.99,2.0,399.98,35.9982,435.9782,1543527102);
+INSERT INTO "Purchases" VALUES (11,10,2,29.99,3.0,89.97,8.0973,98.0673,1525527102);
+INSERT INTO "Purchases" VALUES (13,1,2,4,1.0,4.0,0.36,4.36,1575527102);
+INSERT INTO "Purchases" VALUES (14,1,3,2,1.0,2.0,0.18,2.18,1575530849);
+COMMIT;
