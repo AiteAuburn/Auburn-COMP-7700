@@ -11,6 +11,7 @@ import Model.UserModel;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,7 +33,7 @@ public class ProductUI {
     public JLabel labProductMaxPrice = new JLabel("Product Max Price: ");
     public JTextField txtProductMaxPrice = new JTextField(10);
     public final JButton btnSearch = new JButton("Search");
-    private String[] tableColumnHeader = {"Name", "Price", "Availability"};
+    private String[] tableColumnHeader = {"ID", "Name", "Price", "Availability"};
     private ProductTableModel productTableModel = new ProductTableModel(new ArrayList<ProductModel>());
     JTable tableProductInfo = new JTable(productTableModel);
 
@@ -62,7 +63,7 @@ public class ProductUI {
         pane.add(labProductMaxPrice);
         pane.add(txtProductMaxPrice);
         pane.add(btnSearch);
-        btnSearch.addActionListener(new AddButtonController());
+        btnSearch.addActionListener(new SearchButtonController());
         tableProductInfo.setColumnSelectionAllowed(false);
         tableProductInfo.setRowSelectionAllowed(false);
         tableProductInfo.setCellSelectionEnabled(false);
@@ -70,6 +71,11 @@ public class ProductUI {
         tableProductInfo.setEnabled(false);
         tableProductInfo.setDragEnabled(false);
         tableProductInfo.getTableHeader().setReorderingAllowed(false);
+        TableColumnModel colModel=tableProductInfo.getColumnModel();
+        colModel.getColumn(0).setPreferredWidth(10);
+        colModel.getColumn(1).setPreferredWidth(100);
+        colModel.getColumn(2).setPreferredWidth(30);
+        colModel.getColumn(3).setPreferredWidth(30);
         JScrollPane paneTable = new JScrollPane(tableProductInfo);
         IDataAccess adapter = StoreManager.getInstance().getDataAccess();
         ProductModel[] productArray = adapter.loadProductAll();
@@ -81,7 +87,7 @@ public class ProductUI {
         view.getContentPane().add(paneTable);
 
     }
-    class AddButtonController implements ActionListener {
+    class SearchButtonController implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
@@ -125,7 +131,7 @@ public class ProductUI {
 
         @Override
         public int getColumnCount() {
-            return 3;
+            return 4;
         }
 
         public void setList(ProductModel[] productArray) {
@@ -137,10 +143,12 @@ public class ProductUI {
             ProductModel product = products.get(rowIndex);
             switch (columnIndex){
                 case 0:
-                    return product.mName;
+                    return product.mProductID;
                 case 1:
-                    return product.mPrice;
+                    return product.mName;
                 case 2:
+                    return product.mPrice;
+                case 3:
                     return (product.mQuantity > 0)? "In stock" : "Out of stock";
             }
             return "";

@@ -86,9 +86,13 @@ public class UserManagementUI {
             String userID = textViewUserID.getText();
             UserModel user = null;
             IDataAccess adapter = StoreManager.getInstance().getDataAccess();
-            if(userID.length() > 0)
-                user = adapter.loadUser(Integer.parseInt(userID));
-
+            if(userID.length() > 0){
+                try {
+                    user = adapter.loadUser(Integer.parseInt(userID));
+                } catch (Exception e) {
+                    return;
+                }
+            }
             if (user != null) {
                 textViewUserName.setText(user.mName);
                 textViewUserAddress.setText(user.mAddress);

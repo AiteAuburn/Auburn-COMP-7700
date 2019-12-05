@@ -195,7 +195,7 @@ public class HTTPDataAdapter implements IDataAccess{
                     temp.mCost = jt.get("mCost").getAsDouble();
                     temp.mTax = jt.get("mTax").getAsDouble();
                     temp.mTotalCost = jt.get("mTotalCost").getAsDouble();
-                    temp.mDate = jt.get("mDate").getAsString();;
+                    temp.mDate = jt.get("mDate").getAsLong();;
                     pmArray.add(temp);
                 }
                 PurchaseModel[] pm = new PurchaseModel[pmArray.size()];
@@ -313,12 +313,58 @@ public class HTTPDataAdapter implements IDataAccess{
                 }
                 ProductModel[] pm = new ProductModel[pmArray.size()];
                 pmArray.toArray(pm);
+                errorCode = ResponseModel.CUSTOMER_LOAD_OK;
                 return pm;
             } else {
+                errorCode = ResponseModel.CUSTOMER_LOAD_FAILED;
                 return null;
             }
         }catch(Exception e){
             errorCode = ResponseModel.CUSTOMER_LOAD_FAILED;
+            return null;
+        }
+    }
+
+    public PurchaseModel[] searchPurchaseByTimePeriod(long startTime, long endTime) {
+        try {
+            Map<String, String> requestParams = new HashMap<>();
+            requestParams.put("startTime" , Long.toString(startTime));
+            requestParams.put("endTime", Long.toString(endTime));
+            String encodedURL = requestParams.keySet().stream()
+                    .map(key -> key + "=" + encodeValue(requestParams.get(key)))
+                    .collect(joining("&", requestURL + "purchase/search?", ""));
+            ResponseModel rs = sendGet(encodedURL);
+            JsonObject result = new Gson().fromJson(rs.getResponse(), JsonObject.class);
+            boolean success = result.get("result").getAsBoolean();
+            errorCode = result.get("errorCode").getAsInt();
+            if(success) {
+                JsonArray purchaseArray = new Gson().fromJson(result.get("purchases").getAsString(), JsonArray.class);
+                ArrayList<PurchaseModel> pmArray = new ArrayList<PurchaseModel>();
+                for (int i = 0; i < purchaseArray.size(); i++) {
+                    JsonObject jt = purchaseArray.get(i).getAsJsonObject();
+                    PurchaseModel purchase = new PurchaseModel();
+                    purchase.mPurchaseID = jt.get("mPurchaseID").getAsInt();
+                    purchase.mCustomerID = jt.get("mCustomerID").getAsInt();
+                    purchase.mProductID = jt.get("mProductID").getAsInt();
+                    purchase.mProductName = jt.get("mProductName").getAsString();
+                    purchase.mPrice = jt.get("mPrice").getAsDouble();
+                    purchase.mQuantity = jt.get("mQuantity").getAsDouble();
+                    purchase.mCost = jt.get("mCost").getAsDouble();
+                    purchase.mTax = jt.get("mTax").getAsDouble();
+                    purchase.mTotalCost = jt.get("mTotalCost").getAsDouble();
+                    purchase.mDate = jt.get("mDate").getAsLong();
+                    pmArray.add(purchase);
+                }
+                PurchaseModel[] pm = new PurchaseModel[pmArray.size()];
+                pmArray.toArray(pm);
+                errorCode = ResponseModel.PURCHASE_SEARCH_OK;
+                return pm;
+            } else {
+                errorCode = ResponseModel.PURCHASE_SEARCH_FAILED;
+                return null;
+            }
+        }catch(Exception e){
+            errorCode = ResponseModel.PURCHASE_SEARCH_FAILED;
             return null;
         }
     }
@@ -359,7 +405,7 @@ public class HTTPDataAdapter implements IDataAccess{
                 result = new Gson().fromJson(result.get("purchase").getAsString(), JsonObject.class);
                 purchase.mPurchaseID = result.get("mPurchaseID").getAsInt();
                 purchase.mQuantity = result.get("mQuantity").getAsDouble();
-                purchase.mDate = result.get("mDate").getAsString();
+                purchase.mDate = result.get("mDate").getAsLong();
                 purchase.mTotalCost = result.get("mTotalCost").getAsDouble();
                 purchase.mCost = result.get("mCost").getAsDouble();
                 purchase.mPrice = result.get("mPrice").getAsDouble();
@@ -385,8 +431,8 @@ public class HTTPDataAdapter implements IDataAccess{
             requestParams.put("productID", Integer.toString(purchase.mProductID));
             requestParams.put("price", Double.toString(purchase.mPrice));
             requestParams.put("quantity", Double.toString(purchase.mQuantity));
-            if(purchase.mDate.length() != 0)
-                requestParams.put("date", purchase.mDate);
+            if(purchase.mDate != 0)
+                requestParams.put("date", Long.toString(purchase.mDate) );
             String encodedURL = requestParams.keySet().stream()
                     .map(key -> key + "=" + encodeValue(requestParams.get(key)))
                     .collect(joining("&", requestURL + "purchase/change?", ""));

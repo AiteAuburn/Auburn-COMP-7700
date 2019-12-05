@@ -1,5 +1,7 @@
 package Model;
 
+import java.text.SimpleDateFormat;
+
 public class PurchaseModel {
     public int mPurchaseID = -1;
     public int mCustomerID = -1;
@@ -10,12 +12,13 @@ public class PurchaseModel {
     public double mTotalCost = 0.0;
     public double mPrice = -1;
     public double mQuantity = -1;
-    public String mDate = "";
+    public long mDate = 0;
     /**
      * Give a summary of the purchase
      * @return a string representation of the purchase
      */
     public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String output = String.format("Purchase ID: %d\n" +
                                       "Customer ID: %s\n" +
                                       "Product ID: %s\n" +
@@ -33,7 +36,7 @@ public class PurchaseModel {
                                       mTotalCost,
                                       mPrice,
                                       mQuantity,
-                                      mDate);
+                                      sdf.format(mDate));
         return output;
     }
 }

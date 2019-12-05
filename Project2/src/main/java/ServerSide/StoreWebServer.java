@@ -46,6 +46,8 @@ public class StoreWebServer {
         context.setHandler(StoreWebServer::handlePurchaseRequest);
         context = server.createContext("/purchase/change");
         context.setHandler(StoreWebServer::handlePurchaseChangeRequest);
+        context = server.createContext("/purchase/search");
+        context.setHandler(StoreWebServer::handlePurchaseSearchRequest);
 
         System.out.println("WebServer is listening at port " + 8888);
         server.start();
@@ -312,8 +314,8 @@ public class StoreWebServer {
         boolean result = false;
         try {
             UserModel user = new UserModel();
-            if(params.containsKey("customerID"))
-                user.mUserID = Integer.parseInt(params.get("customerID"));
+            if(params.containsKey("userID"))
+                user.mUserID = Integer.parseInt(params.get("userID"));
             else
                 obj.addProperty("result", false);
             if(params.containsKey("name"))
@@ -436,7 +438,7 @@ public class StoreWebServer {
                 purchase.mQuantity = Double.parseDouble(params.get("quantity"));
             else
                 checkPassed = false;
-
+            System.out.println("purchase"+purchase);
             if(checkPassed)
                 result = adapter.savePurchase(purchase);
         } catch (Exception e) {
@@ -447,6 +449,36 @@ public class StoreWebServer {
         obj.addProperty("errorMessage", ResponseModel.getErrorMessage(adapter.getErrorCode()));
         String response = new Gson().toJson(obj);
 
+        exchange.sendResponseHeaders(200, response.getBytes().length);//response code and length
+        OutputStream os = exchange.getResponseBody();
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        os.write(response.getBytes());
+        os.close();
+    }
+    private static void handlePurchaseSearchRequest(HttpExchange exchange) throws IOException {
+        HashMap<String, String> params = getParamsFromQuery(exchange.getRequestURI().getQuery());
+        SQLiteDataAdapter adapter = new SQLiteDataAdapter();
+        adapter.connect(DBPath);
+        JsonObject obj = new JsonObject();
+        try {
+            long startTime = Long.parseLong(params.get("startTime"));
+            long endTime = Long.parseLong(params.get("endTime"));
+            PurchaseModel[] purchaseArray = adapter.searchPurchaseByTimePeriod(startTime, endTime);
+            if(purchaseArray != null) {
+                obj.addProperty("result",true);
+                obj.addProperty("purchases",new Gson().toJson(purchaseArray));
+            }
+            else {
+                obj.addProperty("result", false);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            obj.addProperty("result",false);
+        }
+
+        obj.addProperty("errorCode", adapter.getErrorCode());
+        obj.addProperty("errorMessage", ResponseModel.getErrorMessage(adapter.getErrorCode()));
+        String response = new Gson().toJson(obj);
         exchange.sendResponseHeaders(200, response.getBytes().length);//response code and length
         OutputStream os = exchange.getResponseBody();
         exchange.getResponseHeaders().set("Content-Type", "application/json");

@@ -124,45 +124,47 @@ public class SQLiteDataAdapter {
     }
     public boolean saveCustomer(UserModel userIn) {
         try {
-            UserModel user = loadCustomer(userIn.mUserID);
+            UserModel user = loadUser(userIn.mUserID);
+            if(user == null)
+                user = new UserModel();
+            if(user.mUserID == -1)
+                user.mUserID = userIn.mUserID;
             if(userIn.mName.length() != 0)
                 user.mName = userIn.mName;
             if(userIn.mPassword.length() != 0)
                 user.mPassword = userIn.mPassword;
             user.mPhone = userIn.mPhone;
             user.mAddress = userIn.mAddress;
-            if(userIn.mUserType != -1)
-                user.mUserType = userIn.mUserType;
 
-            String sql = "SELECT 1 FROM Users WHERE userID = ? and userType = 1";
-            PreparedStatement pStmt = conn.prepareStatement(sql);
-
-            pStmt.setInt(1, user.mUserID);
-            ResultSet rs = pStmt.executeQuery();
-            if(rs.next()) {
-                // UPDATE USER
-                System.out.println("----------");
-                System.out.println("UPDATE USER");
-                System.out.println(user);
-                System.out.println("----------");
-                sql = "UPDATE Users SET password = ?, userType = ?, name = ?, phone = ?, address = ? WHERE userID = ? and userType = 1";
-                pStmt.close();
-                pStmt = conn.prepareStatement(sql);
-                pStmt.setString(1, user.mPassword);
-                pStmt.setDouble(2, user.mUserType);
-                pStmt.setString(3, user.mName);
-                pStmt.setString(4, user.mPhone);
-                pStmt.setString(5, user.mAddress);
-                pStmt.setInt(6, user.mUserID);
-                errorCode = ResponseModel.CUSTOMER_EDIT_OK;
-            } else {
+            if(user.mUserType == 1) {
+                    // UPDATE USER
+                    System.out.println("----------");
+                    System.out.println("UPDATE USER");
+                    System.out.println(user);
+                    System.out.println("----------");
+                    String sql;
+                    PreparedStatement pStmt;
+                    sql = "UPDATE Users SET password = ?, userType = ?, name = ?, phone = ?, address = ? WHERE userID = ? and userType = 1";
+                    pStmt = conn.prepareStatement(sql);
+                    pStmt.setString(1, user.mPassword);
+                    pStmt.setDouble(2, user.mUserType);
+                    pStmt.setString(3, user.mName);
+                    pStmt.setString(4, user.mPhone);
+                    pStmt.setString(5, user.mAddress);
+                    pStmt.setInt(6, user.mUserID);
+                    errorCode = ResponseModel.CUSTOMER_EDIT_OK;
+                    pStmt.executeUpdate();
+                    pStmt.close();
+                return true;
+            } else if (user.mUserType == -1) {
                 // INSERT USER
                 System.out.println("----------");
                 System.out.println("INSERT USER");
                 System.out.println(user);
                 System.out.println("----------");
+                String sql;
+                PreparedStatement pStmt;
                 sql = "INSERT INTO Users VALUES (?,?,?,?,?,?)";
-                pStmt.close();
                 pStmt = conn.prepareStatement(sql);
                 pStmt.setInt(1, user.mUserID);
                 pStmt.setString(2, user.mPassword);
@@ -171,13 +173,15 @@ public class SQLiteDataAdapter {
                 pStmt.setString(5, user.mPhone);
                 pStmt.setString(6, user.mAddress);
                 errorCode = ResponseModel.CUSTOMER_SAVE_OK;
+                pStmt.executeUpdate();
+                pStmt.close();
+                return true;
+            } else {
+                errorCode = ResponseModel.CUSTOMER_SAVE_FAILED;
+                return false;
             }
-            pStmt.executeUpdate();
-            pStmt.close();
-            return true;
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             errorCode = ResponseModel.CUSTOMER_SAVE_FAILED;
             return false;
         }
@@ -229,7 +233,7 @@ public class SQLiteDataAdapter {
                 purchase.mCost = rs.getDouble("cost");
                 purchase.mTax = rs.getDouble("tax");
                 purchase.mTotalCost = rs.getDouble("totalCost");
-                purchase.mDate = rs.getString("date");
+                purchase.mDate = rs.getLong("date");
                 pmArray.add(purchase);
             }
             PurchaseModel[] pm = new PurchaseModel[pmArray.size()];
@@ -320,7 +324,7 @@ public class SQLiteDataAdapter {
                 purchase.mCost = rs.getDouble("cost");
                 purchase.mTax = rs.getDouble("tax");
                 purchase.mTotalCost = rs.getDouble("totalCost");
-                purchase.mDate = rs.getString("date");
+                purchase.mDate = rs.getLong("date");
                 errorCode = ResponseModel.PURCHASE_LOAD_OK;
                 pStmt.close();
             } else{
@@ -362,7 +366,7 @@ public class SQLiteDataAdapter {
                 purchase.mCost = purchase.mPrice * purchase.mQuantity;
                 purchase.mTax = purchase.mCost * taxRate;
                 purchase.mTotalCost = purchase.mCost + purchase.mTax;
-                purchase.mDate = Calendar.getInstance().getTime().toString();
+                purchase.mDate = Calendar.getInstance().getTimeInMillis() / 1000;
                 pStmt.setInt(1, purchase.mCustomerID);
                 pStmt.setInt(2, purchase.mProductID);
                 pStmt.setDouble(3, purchase.mPrice);
@@ -370,7 +374,7 @@ public class SQLiteDataAdapter {
                 pStmt.setDouble(5, purchase.mCost);
                 pStmt.setDouble(6, purchase.mTax);
                 pStmt.setDouble(7, purchase.mTotalCost);
-                pStmt.setString(8, purchase.mDate);
+                pStmt.setLong(8, purchase.mDate);
                 pStmt.setInt(9, purchase.mPurchaseID);
                 pStmt.executeUpdate();
                 pStmt.close();
@@ -391,11 +395,12 @@ public class SQLiteDataAdapter {
                 pStmt = conn.prepareStatement(sql);
                 ProductModel product = loadProduct(purchaseIn.mProductID);
                 if (product != null) {
-                    purchase.mPrice = product.mPrice;
+                    if(purchase.mPrice == -1)
+                        purchase.mPrice = product.mPrice;
                     purchase.mCost = purchase.mPrice * purchase.mQuantity;
                     purchase.mTax = purchase.mCost * taxRate;
                     purchase.mTotalCost = purchase.mCost + purchase.mTax;
-                    purchase.mDate = Calendar.getInstance().getTime().toString();
+                    purchase.mDate = Calendar.getInstance().getTimeInMillis() / 1000;
                     pStmt.setInt(1, purchase.mCustomerID);
                     pStmt.setInt(2, purchase.mProductID);
                     pStmt.setDouble(3, purchase.mPrice);
@@ -403,7 +408,7 @@ public class SQLiteDataAdapter {
                     pStmt.setDouble(5, purchase.mCost);
                     pStmt.setDouble(6, purchase.mTax);
                     pStmt.setDouble(7, purchase.mTotalCost);
-                    pStmt.setString(8, purchase.mDate);
+                    pStmt.setLong(8, purchase.mDate);
                     pStmt.executeUpdate();
                     pStmt.close();
                     // INSERT PURCHASE
@@ -474,6 +479,39 @@ public class SQLiteDataAdapter {
         }
     }
 
+    public PurchaseModel[] searchPurchaseByTimePeriod(long startTime, long endTime) {
+        try {
+            String sql = "SELECT purchaseID, userID, Purchases.productID, Products.productName, price, quantity, cost, tax, totalCost, date FROM Purchases LEFT JOIN Products ON Purchases.productID = Products.productID WHERE date >= ? and date <= ? ORDER BY date";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setLong(1, startTime);
+            stmt.setLong(2, endTime);
+            ResultSet rs = stmt.executeQuery();
+            ArrayList<PurchaseModel> pmArray = new ArrayList<PurchaseModel>();
+            while(rs.next()){
+                PurchaseModel purchase = new PurchaseModel();
+                purchase.mPurchaseID = rs.getInt("purchaseID");
+                purchase.mCustomerID = rs.getInt("userID");
+                purchase.mProductName = rs.getString("productName");
+                purchase.mProductID = rs.getInt("productID");
+                purchase.mPrice = rs.getDouble("price");
+                purchase.mQuantity = rs.getDouble("quantity");
+                purchase.mCost = rs.getDouble("cost");
+                purchase.mTax = rs.getDouble("tax");
+                purchase.mTotalCost = rs.getDouble("totalCost");
+                purchase.mDate = rs.getLong("date");
+                pmArray.add(purchase);
+            }
+            PurchaseModel[] pm = new PurchaseModel[pmArray.size()];
+            pmArray.toArray(pm);
+            errorCode = ResponseModel.PURCHASE_SEARCH_OK;
+            return pm;
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            errorCode = ResponseModel.PURCHASE_SEARCH_FAILED;
+            return null;
+        }
+    }
     public ProductModel[] searchProductByNameAndPrice(String productName, double minPrice, double maxPrice) {
         try {
             String sql = "SELECT productID, productName, unitPrice, stockQuantity FROM Products WHERE productName LIKE ? and unitPrice >= ? and unitPrice <= ?";

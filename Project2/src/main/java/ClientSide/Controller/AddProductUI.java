@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 public class AddProductUI {
     public final JFrame view = new JFrame();
@@ -17,7 +19,6 @@ public class AddProductUI {
     public final JTextField textViewProductPrice = new JTextField(20);
     public final JTextField textViewProductQuantity = new JTextField(20);
     public final JButton btnSave = new JButton("Save");
-    public final JButton btnLoad = new JButton("Load");
     public final JButton btnClear = new JButton("Clear");
 
 
@@ -47,16 +48,15 @@ public class AddProductUI {
         panelProductQuantity.add(new JLabel("ProductQuantity"));
         panelProductQuantity.add(textViewProductQuantity);
         panelSaveAndClear.add(btnSave);
-        panelSaveAndClear.add(btnLoad);
         panelSaveAndClear.add(btnClear);
 
+        textViewProductID.addFocusListener(new ProductDataLoader());
         pane.add(panelProductID);
         pane.add(panelProductName);
         pane.add(panelProductPrice);
         pane.add(panelProductQuantity);
         pane.add(panelSaveAndClear);
         btnSave.addActionListener(new AddButtonController());
-        btnLoad.addActionListener(new LoadButtonController());
         btnClear.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed (ActionEvent actionEvent){
@@ -69,38 +69,30 @@ public class AddProductUI {
     }
 
 
-    class LoadButtonController implements ActionListener {
+    class ProductDataLoader implements FocusListener {
 
         @Override
-        public void actionPerformed(ActionEvent actionEvent) {
-            ProductModel product;
-            int productID = -1;
-            String temp = textViewProductID.getText();
+        public void focusGained(FocusEvent focusEvent) {
+        }
 
-            if (temp.length() == 0) {
-                JOptionPane.showMessageDialog(null,
-                        "ProductID could not be EMPTY!!!");
-                return;
-            }
-            try {
-                productID = Integer.parseInt(temp);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null,
-                        "ProductID is INVALID (not a number)!!!");
-                return;
-            }
+        @Override
+        public void focusLost(FocusEvent focusEvent) {
+            String productID = textViewProductID.getText();
+            ProductModel product = null;
             IDataAccess adapter = StoreManager.getInstance().getDataAccess();
-            product = adapter.loadProduct(productID);
+            if(productID.length() > 0) {
+                try {
+                    product = adapter.loadProduct(Integer.parseInt(productID));
+                } catch (Exception e) {
+                    return;
+                }
+            }
             if (product != null) {
                 textViewProductID.setText(product.mProductID + "");
                 textViewProductName.setText(product.mName);
                 textViewProductPrice.setText(product.mPrice + ""    );
                 textViewProductQuantity.setText(product.mQuantity + "");
             }
-            else
-                JOptionPane.showMessageDialog(null,
-                        ResponseModel.getErrorMessage(adapter.getErrorCode()));
-
 
         }
     }

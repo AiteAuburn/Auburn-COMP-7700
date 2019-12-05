@@ -25,14 +25,8 @@ public class PurchaseHistoryUI {
     public JFrame view;
 
     private String[] tableColumnHeader = {"Date", "Name", "Price", "Quantity", "Cost", "Tax", "TotalCost"};
-    private PurchaseTableModel PurchaseTableModel = new PurchaseTableModel(new ArrayList<PurchaseModel>());
-    JTable tablePurchaseInfo = new JTable(PurchaseTableModel);
-
-
-
-    PurchaseModel Purchase;
-    UserModel customer;
-    PurchaseModel purchase;
+    private PurchaseTableModel purchaseTableModel = new PurchaseTableModel(new ArrayList<PurchaseModel>());
+    JTable tablePurchaseInfo = new JTable(purchaseTableModel);
 
     public PurchaseHistoryUI() {
         view = new JFrame();
@@ -67,23 +61,23 @@ public class PurchaseHistoryUI {
     public void refreshTable(){
         StoreManager instance = StoreManager.getInstance();
         IDataAccess adapter = instance.getDataAccess();
-        PurchaseModel[] PurchaseArray = adapter.loadUserPurchaseHistory(instance.getUser().mUserID);
-        if(PurchaseArray != null) {
-            PurchaseTableModel.setList(PurchaseArray);
+        PurchaseModel[] purchaseArray = adapter.loadUserPurchaseHistory(instance.getUser().mUserID);
+        if(purchaseArray != null) {
+            purchaseTableModel.setList(purchaseArray);
             ((AbstractTableModel) tablePurchaseInfo.getModel()).fireTableDataChanged();
         }
     }
     public class PurchaseTableModel extends AbstractTableModel {
 
-        private List<PurchaseModel> Purchases;
+        private List<PurchaseModel> purchases;
 
         public PurchaseTableModel(List<PurchaseModel> Purchases){
-            this.Purchases = Purchases;
+            this.purchases = Purchases;
         }
 
         @Override
         public int getRowCount() {
-            return Purchases.size();
+            return purchases.size();
         }
 
         @Override
@@ -92,27 +86,27 @@ public class PurchaseHistoryUI {
         }
 
         public void setList(PurchaseModel[] PurchaseArray) {
-            Purchases = Arrays.asList(PurchaseArray);
+            purchases = Arrays.asList(PurchaseArray);
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            PurchaseModel Purchase = Purchases.get(rowIndex);
+            PurchaseModel purchase = purchases.get(rowIndex);
             switch (columnIndex){
                 case 0:
-                    return Purchase.mDate;
+                    return purchase.mDate;
                 case 1:
-                    return Purchase.mProductName;
+                    return purchase.mProductName;
                 case 2:
-                    return Purchase.mPrice;
+                    return purchase.mPrice;
                 case 3:
-                    return Purchase.mQuantity;
+                    return purchase.mQuantity;
                 case 4:
-                    return Purchase.mCost;
+                    return purchase.mCost;
                 case 5:
-                    return Purchase.mTax;
+                    return purchase.mTax;
                 case 6:
-                    return Purchase.mTotalCost;
+                    return purchase.mTotalCost;
             }
             return "";
         }

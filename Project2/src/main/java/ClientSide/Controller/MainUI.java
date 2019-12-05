@@ -20,6 +20,8 @@ public class MainUI {
     private JTextField textViewUserPassword = new JTextField(20);
     public MainUI() {
         view = new JFrame();
+        textViewUserName.setText("manager");
+        textViewUserPassword.setText("manager");
         view.setTitle("Store Management System");
         view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         view.setSize(500, 250);
@@ -65,12 +67,14 @@ public class MainUI {
         ProductUI productInfoFrame = new ProductUI();
         PurchaseHistoryUI purchaseHistoryFrame = new PurchaseHistoryUI();
         UserManagementUI userManagementFrame = new UserManagementUI();
+        SummaryReportUI summaryReportFrame = new SummaryReportUI();
         PurchaseUI_Customer customerPurchaseFrame = new PurchaseUI_Customer();
         UserModel user = instance.getUser();
         tabbedPane.addTab("Profile", null, profileFrame.view.getContentPane());
         switch (user.mUserType) {
             case UserModel.USER_TYPE_MANAGER:
                 tabbedPane.addTab("Product", null, productFrame.view.getContentPane());
+                tabbedPane.addTab("Sales", null, summaryReportFrame.view.getContentPane());
                 break;
             case UserModel.USER_TYPE_CASHIER:
                 tabbedPane.addTab("Customer", null, customerFrame.view.getContentPane());
@@ -89,7 +93,8 @@ public class MainUI {
             public void stateChanged(ChangeEvent e) {
                 switch(tabbedPane.getSelectedIndex()){
                     case 3:
-                        purchaseHistoryFrame.refreshTable();
+                        if(user.mUserType == UserModel.USER_TYPE_CUSTOMER)
+                            purchaseHistoryFrame.refreshTable();
                     default:
                         break;
                 }

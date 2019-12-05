@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 public class AddCustomerUI {
     public final JFrame view = new JFrame();
@@ -17,7 +19,6 @@ public class AddCustomerUI {
     public final JTextField textViewCustomerAddress = new JTextField(20);
     public final JTextField textViewCustomerPhone = new JTextField(20);
     public final JButton btnSave = new JButton("Save");
-    public final JButton btnLoad = new JButton("Load");
     public final JButton btnClear = new JButton("Clear");
 
     public AddCustomerUI() {
@@ -46,16 +47,15 @@ public class AddCustomerUI {
         panelCustomerQuantity.add(new JLabel("CustomerPhone"));
         panelCustomerQuantity.add(textViewCustomerPhone);
         panelSaveAndClear.add(btnSave);
-        panelSaveAndClear.add(btnLoad);
         panelSaveAndClear.add(btnClear);
 
+        textViewCustomerID.addFocusListener(new CustomerDataLoader());
         pane.add(panelCustomerID);
         pane.add(panelCustomerName);
         pane.add(panelCustomerPrice);
         pane.add(panelCustomerQuantity);
         pane.add(panelSaveAndClear);
         btnSave.addActionListener(new AddButtonController());
-        btnLoad.addActionListener(new LoadButtonController());
         btnClear.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed (ActionEvent actionEvent){
@@ -66,39 +66,30 @@ public class AddCustomerUI {
             }
         });
     }
-    class LoadButtonController implements ActionListener {
+    class CustomerDataLoader implements FocusListener {
 
         @Override
-        public void actionPerformed(ActionEvent actionEvent) {
-            UserModel customer;
-            int customerID = -1;
-            String temp = textViewCustomerID.getText();
+        public void focusGained(FocusEvent focusEvent) {
+        }
 
-            if (temp.length() == 0) {
-                JOptionPane.showMessageDialog(null,
-                        "CustomerID cannot be empty.");
-                return;
-            }
-            try {
-                customerID = Integer.parseInt(temp);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null,
-                        "CustomerID is invalid!!!");
-                return;
-            }
+        @Override
+        public void focusLost(FocusEvent focusEvent) {
+            String customerID = textViewCustomerID.getText();
+            UserModel customer = null;
             IDataAccess adapter = StoreManager.getInstance().getDataAccess();
-            customer = adapter.loadCustomer(customerID);
-            System.out.println("hey" + adapter.getErrorCode());
+            if(customerID.length() > 0) {
+                try {
+                    customer = adapter.loadCustomer(Integer.parseInt(customerID));
+                }catch (Exception e){
+                    return ;
+                }
+            }
             if (customer != null) {
                 textViewCustomerID.setText(customer.mUserID + "");
                 textViewCustomerName.setText(customer.mName);
                 textViewCustomerAddress.setText(customer.mAddress);
                 textViewCustomerPhone.setText(customer.mPhone);
             }
-            else
-                JOptionPane.showMessageDialog(null,
-                        ResponseModel.getErrorMessage(adapter.getErrorCode()));
-
 
         }
     }
@@ -150,16 +141,17 @@ public class AddCustomerUI {
 
             IDataAccess adapter = StoreManager.getInstance().getDataAccess();
 
-            if (adapter.saveCustomer(customer))
+            if (adapter.saveCustomer(customer)) {
                 if (adapter.getErrorCode() == ResponseModel.CUSTOMER_SAVE_OK)
                     JOptionPane.showMessageDialog(null,
                             "Customer is saved successfully!\n" + customer);
-                else if(adapter.getErrorCode() == ResponseModel.CUSTOMER_EDIT_OK)
+                else if (adapter.getErrorCode() == ResponseModel.CUSTOMER_EDIT_OK)
                     JOptionPane.showMessageDialog(null,
                             "Customer is edited successfully!\n" + customer);
-                else
-                    JOptionPane.showMessageDialog(null,
-                            ResponseModel.getErrorMessage(adapter.getErrorCode()));
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        ResponseModel.getErrorMessage(adapter.getErrorCode()));
+            }
 
 
         }

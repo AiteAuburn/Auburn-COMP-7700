@@ -42,6 +42,8 @@ public class ResponseModel {
     public static final int PURCHASE_SAVE_PRODUCT_ID_NOT_FOUND = 602;
     public static final int PURCHASE_SAVE_DUPLICATE = 603;
     public static final int PURCHASE_EDIT_OK = 604;
+    public static final int PURCHASE_SEARCH_OK = 605;
+    public static final int PURCHASE_SEARCH_FAILED = 606;
 
     public static final int CUSTOMER_LOAD_OK = 700;
     public static final int CUSTOMER_LOAD_FAILED = 701;
@@ -64,7 +66,7 @@ public class ResponseModel {
             put(PRODUCT_LOAD_FAILED, "Cannot load the product!");
             put(PURCHASE_SAVE_FAILED, "Cannot save the purchase!");
             put(USER_SAVE_FAILED, "Cannot save the user");
-            put(CUSTOMER_SAVE_FAILED, "Cannot save the customer");
+            put(CUSTOMER_SAVE_FAILED, "This id is taken by the admin, manager, or cashier.\nPlease use another customer id.");
             put(PRODUCT_SAVE_FAILED, "Cannot save the product!");
             put(PURCHASE_LOAD_ID_NOT_FOUND, "Purchase ID not found!");
             put(PURCHASE_SAVE_PRODUCT_ID_NOT_FOUND, "Product does not exist with the ID provided.");

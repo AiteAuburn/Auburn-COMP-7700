@@ -18,6 +18,7 @@ public interface IDataAccess {
     public PurchaseModel loadPurchase(int purchaseID);
     public boolean savePurchase(PurchaseModel purchase);
     public ProductModel[] searchProductByNameAndPrice(String productName, double minPrice, double maxPrice);
+    public PurchaseModel[] searchPurchaseByTimePeriod(long startTime, long endTime);
 
     public int getErrorCode();
 }
