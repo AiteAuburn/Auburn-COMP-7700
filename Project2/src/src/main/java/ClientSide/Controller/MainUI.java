@@ -20,8 +20,8 @@ public class MainUI {
     private JTextField textViewUserPassword = new JTextField(20);
     public MainUI() {
         view = new JFrame();
-        textViewUserName.setText("manager");
-        textViewUserPassword.setText("manager");
+        textViewUserName.setText("customer");
+        textViewUserPassword.setText("customer");
         view.setTitle("Store Management System");
         view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         view.setSize(500, 250);

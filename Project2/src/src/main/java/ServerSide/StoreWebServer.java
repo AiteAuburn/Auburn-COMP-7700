@@ -59,7 +59,6 @@ public class StoreWebServer {
             int p = st.indexOf("=");
             String key = st.substring(0, p);
             String value = st.substring(p + 1);
-            System.out.println(key + " -> " + value);
             params.put(key, value);
         }
         return params;
@@ -90,10 +89,11 @@ public class StoreWebServer {
                 obj.addProperty("product", new Gson().toJson(product));
             }
         } catch (Exception e) {
+            System.out.println(e);
         }
 
-        obj.addProperty("result",result);
-        String response = new Gson().toJson(product);
+        obj.addProperty("result", result);
+        String response = new Gson().toJson(obj);
         exchange.sendResponseHeaders(200, response.getBytes().length);//response code and length
         OutputStream os = exchange.getResponseBody();
         exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -164,6 +164,9 @@ public class StoreWebServer {
         try {
             int id = Integer.parseInt(params.get("id"));
             ProductModel product = adapter.loadProduct(id);
+            if(product == null)
+                product = new ProductModel();
+            product.mProductID = id;
             if(params.containsKey("price"))
                 product.mPrice = Double.parseDouble(params.get("price"));
             if(params.containsKey("quantity"))

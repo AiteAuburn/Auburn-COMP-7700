@@ -89,6 +89,10 @@ public class AddCustomerUI {
                 textViewCustomerName.setText(customer.mName);
                 textViewCustomerAddress.setText(customer.mAddress);
                 textViewCustomerPhone.setText(customer.mPhone);
+            } else{
+                textViewCustomerName.setText("");
+                textViewCustomerAddress.setText("");
+                textViewCustomerPhone.setText("");
             }
 
         }

@@ -143,6 +143,8 @@ public class UserManagementUI {
             temp = textViewUserAddress.getText();
             user.mAddress = temp;
 
+            user.mUserType = comboBoxUserType.getSelectedIndex() + 1;
+
             IDataAccess adapter = StoreManager.getInstance().getDataAccess();
 
             if (adapter.saveUser(user))

@@ -94,7 +94,7 @@ public class PurchaseHistoryUI {
             PurchaseModel purchase = purchases.get(rowIndex);
             switch (columnIndex){
                 case 0:
-                    return purchase.mDate;
+                    return purchase.getDate();
                 case 1:
                     return purchase.mProductName;
                 case 2:

@@ -114,24 +114,45 @@ public class HTTPDataAdapter implements IDataAccess{
     }
     public ProductModel loadProduct(int productID) {
         try {
-            ResponseModel rs = (sendGet(requestURL + "product?id=" + productID));
+            Map<String, String> requestParams = new HashMap<>();
+            requestParams.put("id", Integer.toString(productID));
+            String encodedURL = requestParams.keySet().stream()
+                    .map(key -> key + "=" + encodeValue(requestParams.get(key)))
+                    .collect(joining("&", requestURL + "product?", ""));
+            ResponseModel rs = sendGet(encodedURL);
             JsonObject result = new Gson().fromJson(rs.getResponse(), JsonObject.class);
-            ProductModel product = new ProductModel();
-            product.mProductID = result.get("mProductID").getAsInt();
-            product.mName = result.get("mName").getAsString();
-            product.mPrice = result.get("mPrice").getAsDouble();
-            product.mQuantity = result.get("mQuantity").getAsDouble();
-            errorCode = ResponseModel.PRODUCT_LOAD_OK;
-            return product;
-        }catch(Exception e){
+            boolean success = result.get("result").getAsBoolean();
+
+            if (success) {
+                result = new Gson().fromJson(result.get("product").getAsString(), JsonObject.class);
+                ProductModel product = new ProductModel();
+                product.mProductID = result.get("mProductID").getAsInt();
+                product.mName = result.get("mName").getAsString();
+                product.mPrice = result.get("mPrice").getAsDouble();
+                product.mQuantity = result.get("mQuantity").getAsDouble();
+                errorCode = ResponseModel.PRODUCT_LOAD_OK;
+                return product;
+            }
+            else {
+                errorCode = ResponseModel.PRODUCT_LOAD_FAILED;
+                return null;
+            }
+        } catch (Exception e) {
             errorCode = ResponseModel.PRODUCT_LOAD_FAILED;
             return null;
         }
     }
     public boolean saveProduct(ProductModel product){
         try {
-            String apiURL = requestURL + "product/change?id=" + product.mProductID + "&name=" + product.mName + "&price=" + product.mPrice + "&quantity=" + product.mQuantity;
-            ResponseModel rs = sendGet(apiURL);
+            Map<String, String> requestParams = new HashMap<>();
+            requestParams.put("id", Integer.toString(product.mProductID));
+            requestParams.put("name", product.mName);
+            requestParams.put("price", Double.toString(product.mPrice));
+            requestParams.put("quantity", Double.toString(product.mQuantity));
+            String encodedURL = requestParams.keySet().stream()
+                    .map(key -> key + "=" + encodeValue(requestParams.get(key)))
+                    .collect(joining("&", requestURL + "product/change?", ""));
+            ResponseModel rs = sendGet(encodedURL);
             JsonObject result = new Gson().fromJson(rs.getResponse(), JsonObject.class);
             boolean success = result.get("result").getAsBoolean();
             if (success)
@@ -162,6 +183,7 @@ public class HTTPDataAdapter implements IDataAccess{
                 user.mUserType = result.get("mUserType").getAsInt();
                 return user;
             } else {
+                errorCode = ResponseModel.USER_LOAD_FAILED;
                 return null;
             }
         }catch(Exception e){
@@ -218,6 +240,8 @@ public class HTTPDataAdapter implements IDataAccess{
                 requestParams.put("name", user.mName);
             if(user.mPassword.length() != 0)
                 requestParams.put("password", user.mPassword);
+            if(user.mUserType != -1)
+                requestParams.put("userType", Integer.toString(user.mUserType));
             requestParams.put("phone", user.mPhone);
             requestParams.put("address", user.mAddress);
             String encodedURL = requestParams.keySet().stream()

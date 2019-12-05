@@ -1,6 +1,7 @@
 package Model;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PurchaseModel {
     public int mPurchaseID = -1;
@@ -13,6 +14,10 @@ public class PurchaseModel {
     public double mPrice = -1;
     public double mQuantity = -1;
     public long mDate = 0;
+    public String getDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(new Date(mDate * 1000));
+    }
     /**
      * Give a summary of the purchase
      * @return a string representation of the purchase

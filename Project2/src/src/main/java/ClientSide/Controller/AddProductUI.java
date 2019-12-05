@@ -92,6 +92,10 @@ public class AddProductUI {
                 textViewProductName.setText(product.mName);
                 textViewProductPrice.setText(product.mPrice + ""    );
                 textViewProductQuantity.setText(product.mQuantity + "");
+            } else {
+                textViewProductName.setText("");
+                textViewProductPrice.setText("");
+                textViewProductQuantity.setText("");
             }
 
         }
